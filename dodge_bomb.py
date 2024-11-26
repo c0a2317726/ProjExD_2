@@ -27,6 +27,32 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバー時に画面をブラックアウトし、
+    泣いているこうかとん画像と「Game Over」を表示する関数。
+    
+    
+    screen (pg.Surface): ゲーム画面のSurface
+    """
+    font = pg.font.Font(None, 80)  # フォント設定
+    gameover_text = font.render("Game Over", True, (255, 255, 255))  # テキスト描画
+    gameover_rect = gameover_text.get_rect(center=(WIDTH // 2, HEIGHT // 3))
+
+    black_overlay = pg.Surface((WIDTH, HEIGHT))
+    black_overlay.set_alpha(128)  # 半透明設定
+    black_overlay.fill((0, 0, 0))
+
+    crying_kk_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
+    crying_kk_rect = crying_kk_img.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+    screen.blit(black_overlay, (0, 0))
+    screen.blit(crying_kk_img, crying_kk_rect)
+    screen.blit(gameover_text, gameover_rect)
+    pg.display.update()
+    pg.time.wait(5000)  # 5秒間待機
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -34,10 +60,10 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
-    bb_img = pg.Surface((20, 20))  # 爆弾用の空サーフェイス
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 爆弾円を描く
+    bb_img = pg.Surface((20, 20))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
     bb_img.set_colorkey((0, 0, 0))
-    bb_rct = bb_img.get_rect()  # 爆弾rectの抽出
+    bb_rct = bb_img.get_rect()
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
     vx, vy = +5, +5
     clock = pg.time.Clock()
@@ -48,7 +74,6 @@ def main():
                 return
         screen.blit(bg_img, [0, 0])
 
-        # こうかとんの移動処理
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key, tpl in DELTA.items():
@@ -58,21 +83,19 @@ def main():
 
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
-            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  # 元に戻す
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
 
-        # 爆弾の移動処理
         bb_rct.move_ip(vx, vy)
         yoko, tate = check_bound(bb_rct)
-        if not yoko:  # 横が画面外
+        if not yoko:
             vx *= -1
-        if not tate:  # 縦が画面外
+        if not tate:
             vy *= -1
         screen.blit(bb_img, bb_rct)
 
-        # 衝突判定
-        if kk_rct.colliderect(bb_rct):  # こうかとんと爆弾が衝突した場合
-            print("Game Over!")  # デバッグ用メッセージ
+        if kk_rct.colliderect(bb_rct):
+            gameover(screen)
             return
 
         pg.display.update()
