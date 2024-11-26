@@ -70,6 +70,11 @@ def main():
             vy *= -1
         screen.blit(bb_img, bb_rct)
 
+        # 衝突判定
+        if kk_rct.colliderect(bb_rct):  # こうかとんと爆弾が衝突した場合
+            print("Game Over!")  # デバッグ用メッセージ
+            return
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
