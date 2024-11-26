@@ -11,6 +11,8 @@ DELTA = {
     pg.K_LEFT: (-5, 0),
     pg.K_RIGHT: (+5, 0),
 }
+
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -72,6 +74,8 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_imgs.append(bb_img)
         bb_accs.append(r)  # 加速度もサイズに比例
     return bb_imgs, bb_accs
+#演習３：飛ぶ方向に従ってこうかとん画像を切り替える
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -95,6 +99,8 @@ def main():
         acc = bb_accs[idx]
         bb_rct.move_ip(vx * acc, vy * acc)
         bb_rct.size = bb_img.get_size()
+
+        
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
